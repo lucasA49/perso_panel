@@ -1,4 +1,5 @@
-import { getFullState, setSetting } from "@/lib/budget";
+import { setSetting } from "@/lib/budget";
+import { commitState } from "@/lib/history";
 import { badRequest, handle, json, readBody } from "@/lib/http";
 
 // Réglages : salaire + épargne
@@ -15,5 +16,5 @@ export const PUT = handle(async (request) => {
     const value = Math.max(0, Number(savings.value) || 0);
     await setSetting("savings", { mode, value });
   }
-  return json(await getFullState());
+  return json(await commitState());
 });

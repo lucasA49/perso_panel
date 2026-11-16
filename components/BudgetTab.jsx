@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api, fmt } from "@/lib/api-client";
+import BudgetBreakdown from "./BudgetBreakdown";
 import { Button, Card, EmptyState, Field, IconButton, Input, PlusIcon, Select, Toggle, TrashIcon } from "./ui";
 
 const CATEGORIES = ["Logement", "Abonnements", "Transport", "Assurances", "Crédits", "Alimentation", "Autre"];
@@ -62,14 +63,7 @@ export default function BudgetTab({ budget, onBudget, run }) {
 }
 
 function BudgetHero({ salary, computed }) {
-  const { totalFixed, savingsAmount, budgetSortie, negative } = computed;
-  const share = (n) => (salary > 0 ? Math.min(100, Math.max(0, (n / salary) * 100)) : 0);
-
-  const parts = [
-    { label: "Dépenses fixes", value: totalFixed, color: "bg-warn" },
-    { label: "Épargne", value: savingsAmount, color: "bg-info" },
-    { label: "Sorties", value: Math.max(0, budgetSortie), color: "bg-accent" },
-  ];
+  const { budgetSortie, negative } = computed;
 
   return (
     <section className="rounded-2xl border border-line bg-gradient-to-b from-raised to-surface p-5">
@@ -77,31 +71,14 @@ function BudgetHero({ salary, computed }) {
       <p className={`mt-1 text-4xl font-bold tracking-tight tabular-nums ${negative ? "text-danger" : "text-accent"}`}>
         {fmt(budgetSortie)}
       </p>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-1 mb-4 text-sm text-muted">
         {salary <= 0
           ? "Renseigne ton salaire dans Réglages pour démarrer."
           : negative
             ? "Tes dépenses et ton épargne dépassent ton salaire."
             : `sur un salaire de ${fmt(salary)}`}
       </p>
-
-      <div className="mt-4 flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
-        {parts.map((part) => (
-          <div key={part.label} className={part.color} style={{ width: `${share(part.value)}%` }} />
-        ))}
-      </div>
-
-      <dl className="mt-4 grid grid-cols-3 gap-2">
-        {parts.map((part) => (
-          <div key={part.label}>
-            <dt className="flex items-center gap-1.5 text-xs text-muted">
-              <span className={`size-2 rounded-full ${part.color}`} />
-              {part.label}
-            </dt>
-            <dd className="mt-0.5 text-sm font-semibold tabular-nums">{fmt(part.value)}</dd>
-          </div>
-        ))}
-      </dl>
+      <BudgetBreakdown salary={salary} {...computed} />
     </section>
   );
 }

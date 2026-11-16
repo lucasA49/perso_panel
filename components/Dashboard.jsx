@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import BudgetTab from "./BudgetTab";
+import HistoryTab from "./HistoryTab";
 import RemindersTab from "./RemindersTab";
 import SettingsTab from "./SettingsTab";
-import { BellIcon, Button, SlidersIcon, WalletIcon } from "./ui";
+import { BellIcon, Button, HistoryIcon, SlidersIcon, WalletIcon } from "./ui";
 
 const TABS = [
-  { id: "budget", label: "Budget", Icon: WalletIcon },
+  { id: "budget", label: "Budget", title: "Bonjour Lucas", Icon: WalletIcon },
+  { id: "history", label: "Historique", Icon: HistoryIcon },
   { id: "reminders", label: "Rappels", Icon: BellIcon },
   { id: "settings", label: "Réglages", Icon: SlidersIcon },
 ];
@@ -63,11 +65,13 @@ export default function Dashboard() {
     [notify]
   );
 
+  const active = TABS.find((t) => t.id === tab);
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(env(safe-area-inset-bottom)+6rem)]">
       <header className="mb-5">
         <p className="text-xs font-medium tracking-widest text-muted uppercase">Perso Panel</p>
-        <h1 className="text-2xl font-bold">{TABS.find((t) => t.id === tab).label}</h1>
+        <h1 className="text-2xl font-bold">{active.title ?? active.label}</h1>
       </header>
 
       <main className="flex flex-1 flex-col gap-4">
@@ -83,6 +87,8 @@ export default function Dashboard() {
           <Skeleton />
         ) : tab === "budget" ? (
           <BudgetTab budget={budget} onBudget={setBudget} run={run} />
+        ) : tab === "history" ? (
+          <HistoryTab />
         ) : tab === "reminders" ? (
           <RemindersTab reminders={reminders} onReminders={setReminders} run={run} />
         ) : (

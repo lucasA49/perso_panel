@@ -36,10 +36,12 @@ app/
 components/              Composants React client ("use client")
   ui.jsx                 Briques réutilisables : Card, Button, Input, Toggle, icônes…
   Dashboard.jsx          Coquille : chargement des données, onglets, toasts
-  BudgetTab.jsx · RemindersTab.jsx · SettingsTab.jsx
+  BudgetTab.jsx · HistoryTab.jsx · RemindersTab.jsx · SettingsTab.jsx
+  BudgetBreakdown.jsx    Barre de répartition du salaire (budget + historique)
 lib/
   db.js                  Base embarquée (PGlite) + création auto des tables   (serveur)
   budget.js              Calcul du budget                                     (serveur)
+  history.js             Historique : une photo du budget par mois            (serveur)
   push.js                Envoi Web Push                                       (serveur)
   scheduler.js           Vérification des rappels chaque minute               (serveur)
   http.js                Helpers des Route Handlers : handle, json, readId…   (serveur)
@@ -58,6 +60,8 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
   depuis un composant client ; le front passe uniquement par `lib/api-client.js`.
 - Chaque Route Handler est enveloppé dans `handle()` (`lib/http.js`) et valide ses entrées
   (`badRequest("…")`). `params` est une promesse : utiliser `readId(context)`.
+- Toute route qui modifie le budget (réglages, dépenses) répond avec `commitState()` (`lib/history.js`)
+  et non `getFullState()` : c'est ce qui met à jour le mois en cours dans l'historique.
 - Requêtes SQL toujours paramétrées (`$1, $2…`), jamais de concaténation de valeurs.
 - Nouveau composant d'interface : réutiliser `components/ui.jsx` avant d'en créer un autre.
 - Mobile d'abord : largeur max `max-w-md`, zones tactiles ≥ 44 px (`min-h-11`), champs en `text-base`

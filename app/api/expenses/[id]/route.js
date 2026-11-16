@@ -1,5 +1,5 @@
-import { getFullState } from "@/lib/budget";
 import { query } from "@/lib/db";
+import { commitState } from "@/lib/history";
 import { badRequest, handle, json, readBody, readId } from "@/lib/http";
 
 // Modifie une dépense fixe (libellé, montant, catégorie, active)
@@ -30,12 +30,12 @@ export const PATCH = handle(async (request, context) => {
   if (!fields.length) return badRequest("Rien à modifier");
   values.push(id);
   await query(`UPDATE fixed_expenses SET ${fields.join(", ")} WHERE id = $${values.length}`, values);
-  return json(await getFullState());
+  return json(await commitState());
 });
 
 export const DELETE = handle(async (request, context) => {
   const id = await readId(context);
   if (!id) return badRequest("Identifiant invalide");
   await query("DELETE FROM fixed_expenses WHERE id = $1", [id]);
-  return json(await getFullState());
+  return json(await commitState());
 });

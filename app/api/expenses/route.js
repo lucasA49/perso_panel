@@ -1,5 +1,5 @@
-import { getFullState } from "@/lib/budget";
 import { query } from "@/lib/db";
+import { commitState } from "@/lib/history";
 import { badRequest, handle, json, readBody } from "@/lib/http";
 
 // Ajoute une dépense fixe
@@ -14,5 +14,5 @@ export const POST = handle(async (request) => {
     amt,
     (category && String(category).trim()) || "Autre",
   ]);
-  return json(await getFullState(), 201);
+  return json(await commitState(), 201);
 });

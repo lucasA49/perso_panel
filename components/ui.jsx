@@ -169,6 +169,14 @@ export const BellIcon = (p) => (
   </Icon>
 );
 
+export const HistoryIcon = (p) => (
+  <Icon {...p}>
+    <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" />
+    <path d="M3.5 4.5v4h4" />
+    <path d="M12 7.5V12l3 2" />
+  </Icon>
+);
+
 export const SlidersIcon = (p) => (
   <Icon {...p}>
     <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
