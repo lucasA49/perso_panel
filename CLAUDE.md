@@ -21,7 +21,7 @@ Application perso (PWA mobile) : budget mensuel, dépenses fixes et rappels avec
 
 ```bash
 npm run dev        # développement (http://localhost:3000)
-npm run build      # build de production — doit passer avant chaque push
+npm run build      # build de production (webpack) — doit passer avant chaque push
 npm run lint       # ESLint — doit passer avant chaque push
 npm start          # serveur de production (utilise la variable PORT)
 npm run gen-vapid  # génère les clés VAPID (une seule fois)
@@ -69,6 +69,9 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
 
 - Hostinger est connecté au dépôt GitHub, branche `main` : un push déclenche le déploiement.
 - Build : `npm run build` — Démarrage : `npm start` — Node ≥ 20.9.
+- Le build utilise webpack (`next build --webpack`) et Tailwind passe par PostCSS (`postcss.config.mjs`) :
+  le build Turbopack échoue sur Hostinger (il ne peut pas y lancer ses processus Node auxiliaires).
+  Ne pas revenir à Turbopack pour le build.
 - Variables d'environnement à saisir dans le panneau Hostinger : voir `.env.example`.
   Ne jamais committer de `.env*` (seul `.env.example` est suivi).
 - `DATA_DIR` doit pointer vers un dossier persistant hors du dossier de déploiement, sinon un
