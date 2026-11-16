@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { api, fmt } from "@/lib/api-client";
+import { FIXED_CATEGORIES, SPENDING_CATEGORIES } from "@/lib/categories";
 import BudgetBreakdown from "./BudgetBreakdown";
+import CategoryBudgets from "./CategoryBudgets";
 import { Button, Card, EmptyState, Field, IconButton, Input, PlusIcon, Select, Toggle, TrashIcon } from "./ui";
-
-const FIXED_CATEGORIES = ["Logement", "Abonnements", "Transport", "Assurances", "Crédits", "Alimentation", "Autre"];
-const SPENDING_CATEGORIES = ["Courses", "Restaurants", "Sorties", "Shopping", "Transport", "Santé", "Loisirs", "Autre"];
 
 const dayFormat = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" });
 const monthName = new Intl.DateTimeFormat("fr-FR", { month: "long" });
@@ -25,7 +24,7 @@ const localToday = () => {
 };
 
 export default function BudgetTab({ budget, onBudget, run }) {
-  const { salary, expenses, computed, month } = budget;
+  const { salary, expenses, computed, month, categories } = budget;
 
   const monthLabel = monthName.format(toDate(`${month.key}-01`));
 
@@ -72,6 +71,8 @@ export default function BudgetTab({ budget, onBudget, run }) {
           </ul>
         )}
       </Card>
+
+      <CategoryBudgets categories={categories} />
 
       <Card
         title={`Revenus de ${monthLabel}`}

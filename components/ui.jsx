@@ -169,6 +169,14 @@ export const BellIcon = (p) => (
   </Icon>
 );
 
+export const TargetIcon = (p) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <circle cx="12" cy="12" r="4.5" />
+    <path d="M12 12h.01" />
+  </Icon>
+);
+
 export const HistoryIcon = (p) => (
   <Icon {...p}>
     <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" />

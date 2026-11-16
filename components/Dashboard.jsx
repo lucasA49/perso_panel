@@ -5,11 +5,13 @@ import { api } from "@/lib/api-client";
 import BudgetTab from "./BudgetTab";
 import HistoryTab from "./HistoryTab";
 import RemindersTab from "./RemindersTab";
+import SavingsTab from "./SavingsTab";
 import SettingsTab from "./SettingsTab";
-import { BellIcon, Button, HistoryIcon, SlidersIcon, WalletIcon } from "./ui";
+import { BellIcon, Button, HistoryIcon, SlidersIcon, TargetIcon, WalletIcon } from "./ui";
 
 const TABS = [
   { id: "budget", label: "Budget", title: "Bonjour Lucas", Icon: WalletIcon },
+  { id: "savings", label: "Épargne", Icon: TargetIcon },
   { id: "history", label: "Historique", Icon: HistoryIcon },
   { id: "reminders", label: "Rappels", Icon: BellIcon },
   { id: "settings", label: "Réglages", Icon: SlidersIcon },
@@ -87,6 +89,8 @@ export default function Dashboard() {
           <Skeleton />
         ) : tab === "budget" ? (
           <BudgetTab budget={budget} onBudget={setBudget} run={run} />
+        ) : tab === "savings" ? (
+          <SavingsTab monthlySavings={budget.computed.savingsAmount} run={run} />
         ) : tab === "history" ? (
           <HistoryTab />
         ) : tab === "reminders" ? (

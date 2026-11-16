@@ -36,20 +36,22 @@ app/
 components/              Composants React client ("use client")
   ui.jsx                 Briques réutilisables : Card, Button, Input, Toggle, icônes…
   Dashboard.jsx          Coquille : chargement des données, onglets, toasts
-  BudgetTab.jsx · HistoryTab.jsx · RemindersTab.jsx · SettingsTab.jsx
+  BudgetTab.jsx · SavingsTab.jsx · HistoryTab.jsx · RemindersTab.jsx · SettingsTab.jsx
+  CategoryBudgets.jsx    Dépenses du mois par catégorie avec jauges
   BudgetBreakdown.jsx    Barre de répartition du salaire (budget + historique)
 lib/
   db.js                  Base embarquée (PGlite) + création auto des tables   (serveur)
   budget.js              Calcul du budget                                     (serveur)
   dates.js               Jour et mois courants, heure de Paris                (serveur)
   entries.js             Validation des lignes datées (date, montant)         (serveur)
+  goals.js               Objectifs d'épargne et versements                    (serveur)
   history.js             Historique : une photo du budget par mois            (serveur)
   push.js                Envoi Web Push                                       (serveur)
   scheduler.js           Vérification des rappels chaque minute               (serveur)
   http.js                Helpers des Route Handlers : handle, json, readId…   (serveur)
   api-client.js          Appels à l'API + formatage €                         (navigateur)
   push-client.js         Abonnement aux notifications                         (navigateur)
-  reminders.js           Constantes partagées
+  reminders.js · categories.js   Constantes partagées client / serveur
 instrumentation.js       Démarre le scheduler au lancement du serveur
 public/sw.js             Service worker (réception des notifications push)
 scripts/                 gen-vapid.mjs, gen-icons.mjs
@@ -67,6 +69,10 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
   `lib/budget.js`, seul endroit où ce calcul existe). L'épargne en % s'applique au total des revenus.
 - Deux types de dépenses : **fixes** (`fixed_expenses`, reviennent chaque mois, définissent le budget
   sorties) et **réelles** (`transactions`, achats datés, déduits du budget sorties du mois).
+- **Objectifs d'épargne** (`savings_goals` + `savings_deposits`) : versements saisis à la main,
+  indépendants du calcul du budget. **Plafonds par catégorie** : réglage `category_budgets`.
+- Animations : keyframes dans `app/globals.css` exposées en classes `animate-*` via `@theme` ;
+  toujours respecter `prefers-reduced-motion`.
 - Lignes datées (revenus, dépenses réelles) : valider avec `resolveDay` / `readAmount` (`lib/entries.js`).
 - Toute route qui modifie le budget (réglages, dépenses fixes, revenus) répond avec `commitState()` (`lib/history.js`)
   et non `getFullState()` : c'est ce qui met à jour le mois en cours dans l'historique.

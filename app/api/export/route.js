@@ -12,6 +12,10 @@ export const GET = handle(async () => {
   const incomes = await query(
     "SELECT source, amount, to_char(received_on, 'YYYY-MM-DD') AS received_on FROM incomes ORDER BY received_on"
   );
+  const goals = await query("SELECT id, name, target FROM savings_goals ORDER BY id");
+  const deposits = await query(
+    "SELECT goal_id, amount, to_char(day, 'YYYY-MM-DD') AS day FROM savings_deposits ORDER BY day"
+  );
   const history = await query(
     "SELECT month, salary, total_fixed, savings_amount, budget_sortie, expenses, savings FROM monthly_snapshots ORDER BY month"
   );
@@ -24,6 +28,8 @@ export const GET = handle(async () => {
       reminders: reminders.rows,
       transactions: transactions.rows,
       incomes: incomes.rows,
+      savings_goals: goals.rows,
+      savings_deposits: deposits.rows,
       history: history.rows,
     },
     { headers: { "Content-Disposition": 'attachment; filename="perso-panel-backup.json"' } }

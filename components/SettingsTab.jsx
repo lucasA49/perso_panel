@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api, fmt } from "@/lib/api-client";
+import { SPENDING_CATEGORIES } from "@/lib/categories";
 import { enablePush } from "@/lib/push-client";
 import { Button, Card, Field, Input, Segmented } from "./ui";
 
@@ -14,6 +15,7 @@ export default function SettingsTab({ budget, onBudget, run, notify }) {
   return (
     <>
       <IncomeCard budget={budget} onBudget={onBudget} run={run} />
+      <CategoryLimitsCard budget={budget} onBudget={onBudget} run={run} />
       <NotificationsCard run={run} notify={notify} />
       <Card title="Sauvegarde">
         <p className="mb-3 text-sm text-muted">
@@ -81,6 +83,49 @@ function IncomeCard({ budget, onBudget, run }) {
         </p>
         <Button type="submit" disabled={pending}>
           Enregistrer
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+// Plafond mensuel par catégorie de dépenses (vide = pas de plafond)
+function CategoryLimitsCard({ budget, onBudget, run }) {
+  const [limits, setLimits] = useState(() =>
+    Object.fromEntries(budget.categories.map((c) => [c.name, c.limit > 0 ? String(c.limit) : ""]))
+  );
+  const [pending, setPending] = useState(false);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setPending(true);
+    const categoryBudgets = Object.fromEntries(Object.entries(limits).map(([name, value]) => [name, Number(value) || 0]));
+    const next = await run(() => api.saveSettings({ categoryBudgets }), "Plafonds enregistrés");
+    setPending(false);
+    if (next) onBudget(next);
+  };
+
+  return (
+    <Card title="Budgets par catégorie">
+      <p className="mb-3 text-sm text-muted">
+        Plafond mensuel par catégorie de dépenses. Laisse vide pour ne pas en mettre.
+      </p>
+      <form onSubmit={submit} className="grid grid-cols-2 gap-3">
+        {SPENDING_CATEGORIES.map((name) => (
+          <Field key={name} label={`${name} (€)`}>
+            <Input
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              value={limits[name] ?? ""}
+              onChange={(e) => setLimits({ ...limits, [name]: e.target.value })}
+              placeholder="—"
+            />
+          </Field>
+        ))}
+        <Button type="submit" className="col-span-2" disabled={pending}>
+          Enregistrer les plafonds
         </Button>
       </form>
     </Card>
