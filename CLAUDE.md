@@ -42,6 +42,7 @@ lib/
   db.js                  Base embarquée (PGlite) + création auto des tables   (serveur)
   budget.js              Calcul du budget                                     (serveur)
   dates.js               Jour et mois courants, heure de Paris                (serveur)
+  entries.js             Validation des lignes datées (date, montant)         (serveur)
   history.js             Historique : une photo du budget par mois            (serveur)
   push.js                Envoi Web Push                                       (serveur)
   scheduler.js           Vérification des rappels chaque minute               (serveur)
@@ -61,9 +62,13 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
   depuis un composant client ; le front passe uniquement par `lib/api-client.js`.
 - Chaque Route Handler est enveloppé dans `handle()` (`lib/http.js`) et valide ses entrées
   (`badRequest("…")`). `params` est une promesse : utiliser `readId(context)`.
+- Revenus du mois = **salaire** (réglage, revient chaque mois) + **revenus ponctuels** (`incomes`, datés,
+  avec leur source). Budget sorties = revenus − dépenses fixes − épargne (`computeBudget` dans
+  `lib/budget.js`, seul endroit où ce calcul existe). L'épargne en % s'applique au total des revenus.
 - Deux types de dépenses : **fixes** (`fixed_expenses`, reviennent chaque mois, définissent le budget
   sorties) et **réelles** (`transactions`, achats datés, déduits du budget sorties du mois).
-- Toute route qui modifie le budget (réglages, dépenses) répond avec `commitState()` (`lib/history.js`)
+- Lignes datées (revenus, dépenses réelles) : valider avec `resolveDay` / `readAmount` (`lib/entries.js`).
+- Toute route qui modifie le budget (réglages, dépenses fixes, revenus) répond avec `commitState()` (`lib/history.js`)
   et non `getFullState()` : c'est ce qui met à jour le mois en cours dans l'historique.
 - Requêtes SQL toujours paramétrées (`$1, $2…`), jamais de concaténation de valeurs.
 - Nouveau composant d'interface : réutiliser `components/ui.jsx` avant d'en créer un autre.

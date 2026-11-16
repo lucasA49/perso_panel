@@ -9,8 +9,11 @@ export const GET = handle(async () => {
   const transactions = await query(
     "SELECT label, amount, category, to_char(spent_on, 'YYYY-MM-DD') AS spent_on FROM transactions ORDER BY spent_on"
   );
+  const incomes = await query(
+    "SELECT source, amount, to_char(received_on, 'YYYY-MM-DD') AS received_on FROM incomes ORDER BY received_on"
+  );
   const history = await query(
-    "SELECT month, salary, total_fixed, savings_amount, budget_sortie, expenses FROM monthly_snapshots ORDER BY month"
+    "SELECT month, salary, total_fixed, savings_amount, budget_sortie, expenses, savings FROM monthly_snapshots ORDER BY month"
   );
 
   return Response.json(
@@ -20,6 +23,7 @@ export const GET = handle(async () => {
       expenses: expenses.rows,
       reminders: reminders.rows,
       transactions: transactions.rows,
+      incomes: incomes.rows,
       history: history.rows,
     },
     { headers: { "Content-Disposition": 'attachment; filename="perso-panel-backup.json"' } }

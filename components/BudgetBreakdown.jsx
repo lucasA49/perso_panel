@@ -1,8 +1,8 @@
 import { fmt } from "@/lib/api-client";
 
-// Répartition du salaire : barre empilée + légende (dépenses fixes / épargne / sorties)
-export default function BudgetBreakdown({ salary, totalFixed, savingsAmount, budgetSortie }) {
-  const share = (n) => (salary > 0 ? Math.min(100, Math.max(0, (n / salary) * 100)) : 0);
+// Répartition des revenus : barre empilée + légende (dépenses fixes / épargne / sorties)
+export default function BudgetBreakdown({ totalIncome, totalFixed, savingsAmount, budgetSortie }) {
+  const share = (n) => (totalIncome > 0 ? Math.min(100, Math.max(0, (n / totalIncome) * 100)) : 0);
 
   const parts = [
     { label: "Dépenses fixes", value: totalFixed, color: "bg-warn" },

@@ -6,7 +6,7 @@ import { enablePush } from "@/lib/push-client";
 import { Button, Card, Field, Input, Segmented } from "./ui";
 
 const SAVINGS_MODES = [
-  { value: "percent", label: "% du salaire" },
+  { value: "percent", label: "% des revenus" },
   { value: "amount", label: "Montant fixe" },
 ];
 

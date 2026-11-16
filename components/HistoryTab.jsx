@@ -88,14 +88,14 @@ function TrendCard({ months }) {
 }
 
 function MonthCard({ entry }) {
-  const { month, current, salary, budgetSortie, expenses, spent, remaining, transactions } = entry;
+  const { month, current, salary, totalIncome, budgetSortie, expenses, incomes, spent, remaining, transactions } = entry;
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">
       <header className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold">{capitalize(monthFormat.format(toDate(month)))}</h2>
-          <p className="text-xs text-muted">Salaire : {fmt(salary)}</p>
+          <p className="text-xs text-muted">Revenus : {fmt(totalIncome)}</p>
         </div>
         {current && (
           <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">En cours</span>
@@ -113,11 +113,18 @@ function MonthCard({ entry }) {
       </div>
 
       <Details
+        title={`${incomes.length + 1} revenu${incomes.length > 0 ? "s" : ""}`}
+        items={[
+          { key: "salary", label: "Salaire", detail: "Chaque mois", amount: salary },
+          ...incomes.map((i) => ({ key: i.id, label: i.source, detail: dayFormat.format(toDay(i.day)), amount: i.amount })),
+        ]}
+      />
+      <Details
         title={`${transactions.length} dépense${transactions.length > 1 ? "s" : ""} du mois`}
         items={transactions.map((t) => ({
           key: t.id,
           label: t.label,
-          detail: `${dayFormat.format(toDay(t.spent_on))} · ${t.category}`,
+          detail: `${dayFormat.format(toDay(t.day))} · ${t.category}`,
           amount: t.amount,
         }))}
       />

@@ -27,6 +27,8 @@ const localToday = () => {
 export default function BudgetTab({ budget, onBudget, run }) {
   const { salary, expenses, computed, month } = budget;
 
+  const monthLabel = monthName.format(toDate(`${month.key}-01`));
+
   const update = async (action, message) => {
     const next = await run(action, message);
     if (next) onBudget(next);
@@ -35,14 +37,14 @@ export default function BudgetTab({ budget, onBudget, run }) {
 
   return (
     <>
-      <BudgetHero salary={salary} computed={computed} month={month} />
+      <BudgetHero computed={computed} month={month} />
 
       <Card title="Ajouter une dépense">
         <SpendingForm onAdd={(payload) => update(() => api.addTransaction(payload), "Dépense enregistrée")} />
       </Card>
 
       <Card
-        title={`Dépenses de ${monthName.format(toDate(`${month.key}-01`))}`}
+        title={`Dépenses de ${monthLabel}`}
         action={<span className="text-sm font-semibold tabular-nums">{fmt(month.spent)}</span>}
       >
         {month.transactions.length === 0 ? (
@@ -54,7 +56,7 @@ export default function BudgetTab({ budget, onBudget, run }) {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{item.label}</p>
                   <p className="text-xs text-muted">
-                    {dayFormat.format(toDate(item.spent_on))} · {item.category}
+                    {dayFormat.format(toDate(item.day))} · {item.category}
                   </p>
                 </div>
                 <span className="font-semibold tabular-nums">{fmt(item.amount)}</span>
@@ -69,6 +71,42 @@ export default function BudgetTab({ budget, onBudget, run }) {
             ))}
           </ul>
         )}
+      </Card>
+
+      <Card
+        title={`Revenus de ${monthLabel}`}
+        action={<span className="text-sm font-semibold tabular-nums">{fmt(computed.totalIncome)}</span>}
+      >
+        <ul className="-my-1 divide-y divide-line">
+          <li className="flex min-h-15 items-center gap-3 py-2">
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">Salaire</p>
+              <p className="text-xs text-muted">Chaque mois · modifiable dans Réglages</p>
+            </div>
+            <span className="font-semibold tabular-nums">{fmt(salary)}</span>
+            <span className="size-11 shrink-0" aria-hidden="true" />
+          </li>
+          {month.incomes.map((income) => (
+            <li key={income.id} className="flex items-center gap-3 py-2">
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{income.source}</p>
+                <p className="text-xs text-muted">{dayFormat.format(toDate(income.day))}</p>
+              </div>
+              <span className="font-semibold tabular-nums text-accent">+{fmt(income.amount)}</span>
+              <IconButton
+                label={`Supprimer ${income.source}`}
+                className="hover:text-danger"
+                onClick={() => update(() => api.deleteIncome(income.id), "Revenu supprimé")}
+              >
+                <TrashIcon />
+              </IconButton>
+            </li>
+          ))}
+        </ul>
+
+        <Disclosure title="Ajouter un revenu">
+          <IncomeForm onAdd={(payload) => update(() => api.addIncome(payload), "Revenu ajouté")} />
+        </Disclosure>
       </Card>
 
       <Card
@@ -105,24 +143,31 @@ export default function BudgetTab({ budget, onBudget, run }) {
           </ul>
         )}
 
-        <details className="group mt-3 border-t border-line pt-1">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-semibold text-accent [&::-webkit-details-marker]:hidden">
-            Ajouter une dépense fixe
-            <span className="transition group-open:rotate-45" aria-hidden="true">
-              <PlusIcon />
-            </span>
-          </summary>
-          <div className="pt-2">
-            <FixedExpenseForm onAdd={(payload) => update(() => api.addExpense(payload), "Dépense fixe ajoutée")} />
-          </div>
-        </details>
+        <Disclosure title="Ajouter une dépense fixe">
+          <FixedExpenseForm onAdd={(payload) => update(() => api.addExpense(payload), "Dépense fixe ajoutée")} />
+        </Disclosure>
       </Card>
     </>
   );
 }
 
-function BudgetHero({ salary, computed, month }) {
-  const { budgetSortie } = computed;
+// Formulaire replié sous un titre cliquable
+function Disclosure({ title, children }) {
+  return (
+    <details className="group mt-3 border-t border-line pt-1">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-semibold text-accent [&::-webkit-details-marker]:hidden">
+        {title}
+        <span className="transition group-open:rotate-45" aria-hidden="true">
+          <PlusIcon />
+        </span>
+      </summary>
+      <div className="pt-2">{children}</div>
+    </details>
+  );
+}
+
+function BudgetHero({ computed, month }) {
+  const { budgetSortie, totalIncome } = computed;
   const { spent, remaining } = month;
   const over = remaining < 0;
   const used = budgetSortie > 0 ? Math.min(100, (spent / budgetSortie) * 100) : spent > 0 ? 100 : 0;
@@ -135,8 +180,8 @@ function BudgetHero({ salary, computed, month }) {
         {fmt(remaining)}
       </p>
       <p className="mt-1 text-sm text-muted">
-        {salary <= 0
-          ? "Renseigne ton salaire dans Réglages pour démarrer."
+        {totalIncome <= 0
+          ? "Renseigne ton salaire dans Réglages ou ajoute un revenu pour démarrer."
           : `${fmt(spent)} dépensés sur ${fmt(budgetSortie)} de budget sorties`}
       </p>
 
@@ -152,9 +197,9 @@ function BudgetHero({ salary, computed, month }) {
       </div>
 
       <p className="mt-5 mb-2 text-xs font-medium tracking-wide text-muted uppercase">
-        Répartition du salaire{salary > 0 ? ` · ${fmt(salary)}` : ""}
+        Répartition des revenus{totalIncome > 0 ? ` · ${fmt(totalIncome)}` : ""}
       </p>
-      <BudgetBreakdown salary={salary} {...computed} />
+      <BudgetBreakdown {...computed} />
     </section>
   );
 }
@@ -199,7 +244,7 @@ function SpendingForm({ onAdd }) {
   const submit = async (event) => {
     event.preventDefault();
     setPending(true);
-    const added = await onAdd({ label, amount: Number(amount), category, spent_on: day || localToday() });
+    const added = await onAdd({ label, amount: Number(amount), category, day: day || localToday() });
     setPending(false);
     if (added) {
       setLabel("");
@@ -221,6 +266,47 @@ function SpendingForm({ onAdd }) {
       <Button type="submit" className="col-span-2" disabled={pending}>
         <PlusIcon />
         Ajouter la dépense
+      </Button>
+    </form>
+  );
+}
+
+// Revenu du mois en plus du salaire : source libre, daté (aujourd'hui par défaut)
+function IncomeForm({ onAdd }) {
+  const [source, setSource] = useState("");
+  const [amount, setAmount] = useState("");
+  const [day, setDay] = useState("");
+  const [pending, setPending] = useState(false);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setPending(true);
+    const added = await onAdd({ source, amount: Number(amount), day: day || localToday() });
+    setPending(false);
+    if (added) {
+      setSource("");
+      setAmount("");
+      setDay("");
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="grid grid-cols-2 gap-3">
+      <Field label="Source" className="col-span-2">
+        <Input
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          placeholder="Prime, vente Vinted, remboursement…"
+          required
+        />
+      </Field>
+      <AmountField value={amount} onChange={setAmount} />
+      <Field label="Date (aujourd'hui si vide)">
+        <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} />
+      </Field>
+      <Button type="submit" variant="secondary" className="col-span-2" disabled={pending}>
+        <PlusIcon />
+        Ajouter le revenu
       </Button>
     </form>
   );
