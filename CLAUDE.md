@@ -13,7 +13,7 @@ Application perso (PWA mobile) : budget mensuel, dépenses fixes et rappels avec
   par composant ni de `style={{…}}` (sauf valeur calculée, ex. largeur d'une barre). Tout passe par des
   composants React et des classes Tailwind.
 - **Base embarquée dans le projet** : PGlite (PostgreSQL en WebAssembly), fichiers dans `DATA_DIR`
-  (`./data` par défaut, ignoré par git). Aucun service externe requis. Si `DATABASE_URL` est défini,
+  (par défaut `./data` en dev, `~/perso-panel-data` en production). Aucun service externe requis. Si `DATABASE_URL` est défini,
   un PostgreSQL externe est utilisé à la place via `pg`. SQL PostgreSQL dans les deux cas, pas d'ORM.
 - Une seule app à la racine du dépôt : le front et l'API sont dans Next.js (pas de serveur Express séparé).
 
@@ -41,6 +41,7 @@ components/              Composants React client ("use client")
 lib/
   db.js                  Base embarquée (PGlite) + création auto des tables   (serveur)
   budget.js              Calcul du budget                                     (serveur)
+  dates.js               Jour et mois courants, heure de Paris                (serveur)
   history.js             Historique : une photo du budget par mois            (serveur)
   push.js                Envoi Web Push                                       (serveur)
   scheduler.js           Vérification des rappels chaque minute               (serveur)
@@ -60,6 +61,8 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
   depuis un composant client ; le front passe uniquement par `lib/api-client.js`.
 - Chaque Route Handler est enveloppé dans `handle()` (`lib/http.js`) et valide ses entrées
   (`badRequest("…")`). `params` est une promesse : utiliser `readId(context)`.
+- Deux types de dépenses : **fixes** (`fixed_expenses`, reviennent chaque mois, définissent le budget
+  sorties) et **réelles** (`transactions`, achats datés, déduits du budget sorties du mois).
 - Toute route qui modifie le budget (réglages, dépenses) répond avec `commitState()` (`lib/history.js`)
   et non `getFullState()` : c'est ce qui met à jour le mois en cours dans l'historique.
 - Requêtes SQL toujours paramétrées (`$1, $2…`), jamais de concaténation de valeurs.
@@ -78,7 +81,7 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
   Ne pas revenir à Turbopack pour le build.
 - Variables d'environnement à saisir dans le panneau Hostinger : voir `.env.example`.
   Ne jamais committer de `.env*` (seul `.env.example` est suivi).
-- `DATA_DIR` doit pointer vers un dossier persistant hors du dossier de déploiement, sinon un
-  redéploiement peut effacer les données. Ne jamais committer le dossier `data/`.
+- Les données doivent vivre hors du dossier de l'application (défaut de production : `~/perso-panel-data`),
+  sinon un redéploiement les efface. `/api/health` indique le dossier utilisé. Ne jamais committer `data/`.
 - La base embarquée n'accepte qu'un seul processus serveur à la fois (pas de mode cluster).
 - Ne pas régénérer les clés VAPID une fois en production.

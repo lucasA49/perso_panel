@@ -20,8 +20,10 @@ La base de données est embarquée : rien à installer. Elle est créée automat
 
 1. hPanel → **Sites web** → ajouter une **application Node.js** → importer depuis GitHub → ce dépôt, branche `main`.
 2. Framework : **Next.js** — build : `npm run build` — démarrage : `npm start` — Node 20 ou 22.
-3. Saisir les variables d'environnement : les clés `VAPID_*`, et `DATA_DIR` = un dossier persistant situé
-   hors du dossier de déploiement (sinon un redéploiement peut effacer les données).
+3. Saisir les variables d'environnement : les clés `VAPID_*`. La base est stockée par défaut dans
+   `~/perso-panel-data` sur le serveur, hors du dossier de l'application ; `DATA_DIR` permet de choisir un
+   autre dossier (jamais dans le dossier de l'application, sinon un redéploiement efface les données).
+   `https://ton-domaine.fr/api/health` affiche le dossier utilisé et la date de création de la base.
 4. Déployer. Chaque push sur `main` redéploie ensuite automatiquement.
 
 ### Sauvegarde
