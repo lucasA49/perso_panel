@@ -12,7 +12,9 @@ Application perso (PWA mobile) : budget mensuel, dépenses fixes et rappels avec
 - **Pas de vanilla** : pas de manipulation directe du DOM, pas de pages HTML à la main, pas de fichiers CSS
   par composant ni de `style={{…}}` (sauf valeur calculée, ex. largeur d'une barre). Tout passe par des
   composants React et des classes Tailwind.
-- **PostgreSQL** via `pg` (Neon ou Postgres du VPS). Pas d'ORM.
+- **Base embarquée dans le projet** : PGlite (PostgreSQL en WebAssembly), fichiers dans `DATA_DIR`
+  (`./data` par défaut, ignoré par git). Aucun service externe requis. Si `DATABASE_URL` est défini,
+  un PostgreSQL externe est utilisé à la place via `pg`. SQL PostgreSQL dans les deux cas, pas d'ORM.
 - Une seule app à la racine du dépôt : le front et l'API sont dans Next.js (pas de serveur Express séparé).
 
 ## Commandes
@@ -36,7 +38,7 @@ components/              Composants React client ("use client")
   Dashboard.jsx          Coquille : chargement des données, onglets, toasts
   BudgetTab.jsx · RemindersTab.jsx · SettingsTab.jsx
 lib/
-  db.js                  Pool Postgres + création automatique des tables      (serveur)
+  db.js                  Base embarquée (PGlite) + création auto des tables   (serveur)
   budget.js              Calcul du budget                                     (serveur)
   push.js                Envoi Web Push                                       (serveur)
   scheduler.js           Vérification des rappels chaque minute               (serveur)
@@ -69,4 +71,7 @@ scripts/                 gen-vapid.mjs, gen-icons.mjs
 - Build : `npm run build` — Démarrage : `npm start` — Node ≥ 20.9.
 - Variables d'environnement à saisir dans le panneau Hostinger : voir `.env.example`.
   Ne jamais committer de `.env*` (seul `.env.example` est suivi).
+- `DATA_DIR` doit pointer vers un dossier persistant hors du dossier de déploiement, sinon un
+  redéploiement peut effacer les données. Ne jamais committer le dossier `data/`.
+- La base embarquée n'accepte qu'un seul processus serveur à la fois (pas de mode cluster).
 - Ne pas régénérer les clés VAPID une fois en production.

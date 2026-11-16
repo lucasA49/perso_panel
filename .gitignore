@@ -42,3 +42,6 @@ next-env.d.ts
 
 # on garde le modèle de variables d env
 !.env.example
+
+# base de données embarquée (données locales)
+/data/

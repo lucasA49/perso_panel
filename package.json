@@ -10,6 +10,7 @@
     "gen-vapid": "node scripts/gen-vapid.mjs"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "next": "16.4.6",
     "pg": "^8.23.1",
     "react": "19.3.0",
